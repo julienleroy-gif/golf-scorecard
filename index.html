@@ -373,19 +373,22 @@
             }
         }
 
-        function updateSummary() {
-            let completed = 0;
+      function updateSummary() {
             let totalGross = 0;
+            let holesPlayed = 0;
+            
             roundData.scores.forEach(s => {
-                if(s.brut) {
-                    completed++;
+                if(s.brut !== null && s.brut !== undefined) {
                     totalGross += s.brut;
+                    holesPlayed++;
                 }
             });
-            document.getElementById('holes-completed').textContent = completed;
+
+            // Le nombre de trous joués augmente de 1 en 1 à chaque validation
+            document.getElementById('holes-completed').textContent = holesPlayed;
+            // Le score brut cumule uniquement les coups des trous saisis
             document.getElementById('total-gross').textContent = totalGross;
         }
-
         async function saveCurrentHole() {
             const holeNum = currentHoleIndex + 1;
             const dataHole = roundData.scores[currentHoleIndex];
