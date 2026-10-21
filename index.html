@@ -238,15 +238,13 @@
         }
 
        function startRound() {
-            // Récupération des valeurs des menus déroulants
             const matchIdInput = document.getElementById('match-id').value;
             const nameSelect = document.getElementById('player-name').value;
             const startHoleSelect = parseInt(document.getElementById('start-hole').value);
             const dateInput = document.getElementById('match-date').value;
 
-            // Vérifications
             if(!matchIdInput) {
-                alert("Veuillez sélectionner un ID de Match (M1 à M10).");
+                alert("Veuillez sélectionner un ID de Match.");
                 return;
             }
             if(!nameSelect) {
@@ -254,22 +252,17 @@
                 return;
             }
 
-            // Enregistrement dans l'objet global roundData
-            roundData.matchId = matchIdInput; // On stocke l'ID du match
+            roundData.matchId = matchIdInput;
             roundData.playerName = nameSelect;
             roundData.date = dateInput;
             
-            // Initialisation de l'index du trou (ex: si trou de départ = 5, l'index est 4)
             currentHoleIndex = startHoleSelect - 1;
 
-            // Initialisation des pars par défaut pour les trous
+            // On laisse les scores à null (rien n'est pré-rempli)
             for(let i=0; i<18; i++) {
-                if(!roundData.scores[i].brut) {
-                    roundData.scores[i].brut = MSA_PARS[i];
-                }
+                roundData.scores[i] = { brut: null, putts: null, fairway: null };
             }
 
-            // Bascule des écrans
             document.getElementById('step-player').classList.add('hidden');
             document.getElementById('step-game').classList.remove('hidden');
             loadHoleUI();
