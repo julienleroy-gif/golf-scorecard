@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MSA Golf - Saisie Équipe</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col justify-between">
+
+    <!-- En-tête -->
+    <header class="bg-emerald-800 text-white p-4 shadow-md flex justify-between items-center">
+        <div>
+            <h1 class="text-lg font-bold">Golf de Rouen MSA</h1>
+            <p class="text-xs text-emerald-200">Coupe de Normandie - Saisie Équipe</p>
+        </div>
+        <button onclick="toggleConfig()" class="text-xs bg-emerald-700 hover:bg-emerald-600 px-3 py-1.5 rounded transition">
+            ⚙️ Supabase
+        </button>
+    </header>
+
+    <!-- Panneau de configuration Supabase (escamotable) -->
+    <div id="config-panel" class="hidden bg-slate-800 p-4 border-b border-slate-700 text-sm">
+        <h3 class="font-semibold text-emerald-400 mb-2">Configuration Supabase</h3>
+        <div class="space-y-2">
+            <div>
+                <label class="block text-xs text-slate-400">Project URL</label>
+                <input type="text" id="supabase-url" placeholder="https://xxxx.supabase.co" class="w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-xs text-white">
+            </div>
+            <div>
+                <label class="block text-xs text-slate-400">Anon Public Key</label>
+                <input type="password" id="supabase-key" placeholder="eyJhbGci..." class="w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-xs text-white">
+            </div>
+            <button onclick="saveConfig()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1 rounded text-xs font-medium w-full">Enregistrer les accès</button>
+        </div>
+    </div>
+
+    <!-- Corps de l'application -->
+    <main class="flex-1 p-4 max-w-md mx-auto w-full space-y-4">
+        
+        <!-- Étape 1 : Sélection du joueur -->
+        <div id="step-player" class="bg-slate-800 p-5 rounded-xl shadow border border-slate-700 space-y-4">
+            <h2 class="text-base font-semibold text-emerald-400">1. Qui joue aujourd'hui ?</h2>
+            <div>
+                <label class="block text-xs text-slate-400 mb-1">Nom du joueur</label>
+                <select id="player-name" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white text-sm">
+                    <option value="">-- Choisir un joueur --</option>
+                    <option value="Julien Leroy">Julien Leroy</option>
+                    <option value="Alain Verna">Alain Verna</option>
+                    <option value="Membre 3">Membre 3</option>
+                    <option value="Membre 4">Membre 4</option>
+                    <option value="Membre 5">Membre 5</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs text-slate-400 mb-1">Date de la partie</label>
+                <input type="date" id="match-date" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white text-sm">
+            </div>
+            <button onclick="startRound()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-3 rounded-lg transition shadow-lg">
+                Commencer la partie ⛳
+            </button>
+        </div>
+
+        <!-- Étape 2 : Saisie des scores trou par trou -->
+        <div id="step-game" class="hidden space-y-4">
+            
+            <!-- Barre de navigation des trous -->
+            <div class="bg-slate-800 p-3 rounded-xl border border-slate-700 flex justify-between items-center">
+                <button onclick="prevHole()" class="bg-slate-700 hover:bg-slate-600 px-3 py-1 rounded text-xs font-bold">◀ Préc.</button>
+                <div class="text-center">
+                    <span class="text-xs text-slate-400 uppercase tracking-wider block">Trou n°</span>
+                    <span id="current-hole-num" class="text-xl font-extrabold text-emerald-400">1</span>
+                </div>
+                <button onclick="nextHole()" class="bg-slate-700 hover:bg-slate-600 px-3 py-1 rounded text-xs font-bold">Suiv. ▶</button>
+            </div>
+
+            <!-- Carte du trou actif -->
+            <div class="bg-slate-800 p-5 rounded-xl shadow border border-slate-700 space-y-4">
+                <div class="flex justify-between items-center border-b border-slate-700 pb-3">
+                    <div>
+                        <span id="hole-par-display" class="text-sm font-semibold text-slate-300">Par 4</span>
+                        <p class="text-xs text-slate-500">Mont-Saint-Aignan</p>
+                    </div>
+                    <div id="score-comment" class="text-xs font-bold px-2.5 py-1 rounded-full bg-slate-700 text-slate-300">
+                        Par
+                    </div>
+                </div>
+
+                <!-- Score Brut -->
+                <div>
+                    <label class="block text-xs text-slate-400 mb-2">Coups joués (Brut)</label>
+                    <div class="flex items-center justify-between bg-slate-900 border border-slate-700 rounded-xl p-2">
+                        <button onclick="adjustScore(-1)" class="w-12 h-12 bg-slate-800 hover:bg-slate-700 rounded-lg text-xl font-bold flex items-center justify-center text-slate-200">-</button>
+                        <span id="gross-score" class="text-3xl font-black text-white">4</span>
+                        <button onclick="adjustScore(1)" class="w-12 h-12 bg-slate-800 hover:bg-slate-700 rounded-lg text-xl font-bold flex items-center justify-center text-slate-200">+</button>
+                    </div>
+                </div>
+
+                <!-- Putts -->
+                <div>
+                    <label class="block text-xs text-slate-400 mb-2">Nombre de Putts</label>
+                    <div class="grid grid-cols-4 gap-2" id="putts-selector">
+                        <button onclick="setPutts(1)" class="putt-btn bg-slate-900 border border-slate-700 py-2 rounded-lg text-sm font-semibold hover:border-emerald-500">1</button>
+                        <button onclick="setPutts(2)" class="putt-btn bg-emerald-600 border border-emerald-500 py-2 rounded-lg text-sm font-semibold text-white">2</button>
+                        <button onclick="setPutts(3)" class="putt-btn bg-slate-900 border border-slate-700 py-2 rounded-lg text-sm font-semibold hover:border-emerald-500">3</button>
+                        <button onclick="setPutts(4)" class="putt-btn bg-slate-900 border border-slate-700 py-2 rounded-lg text-sm font-semibold hover:border-emerald-500">4+</button>
+                    </div>
+                </div>
+
+                <!-- Fairway -->
+                <div id="fairway-container">
+                    <label class="block text-xs text-slate-400 mb-2">Fairway touché ?</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="setFairway('oui')" id="fw-oui" class="fw-btn bg-slate-900 border border-slate-700 py-2.5 rounded-lg text-xs font-semibold uppercase tracking-wider">Oui</button>
+                        <button onclick="setFairway('non')" id="fw-non" class="fw-btn bg-slate-900 border border-slate-700 py-2.5 rounded-lg text-xs font-semibold uppercase tracking-wider">Non</button>
+                    </div>
+                </div>
+
+                <!-- Bouton Enregistrer & Sync -->
+                <button onclick="saveCurrentHole()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-3 rounded-xl transition shadow-lg text-sm">
+                    Valider le trou et envoyer ☁️
+                </button>
+            </div>
+
+            <!-- Récapitulatif rapide -->
+            <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 flex justify-between text-xs text-slate-300">
+                <span>Trous joués : <strong id="holes-completed" class="text-emerald-400">0</strong> / 18</span>
+                <span>Total Brut : <strong id="total-gross" class="text-white">0</strong></span>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Pied de page / Statut sync -->
+    <footer class="bg-slate-950 p-3 text-center text-xs text-slate-500 border-t border-slate-800">
+        Statut Synchro : <span id="sync-status" class="text-amber-400 font-medium">Non configuré</span>
+    </footer>
+
+    <!-- Script Logique -->
+    <script>
+        // ==========================================
+        // ⚙️ TES ACCÈS SUPABASE (À RENSEIGNER ICI)
+        // ==========================================
+        const CONFIG_SUPABASE_URL = 'https://gtjyobxafohwtgugkeib.supabase.co/rest/v1/'; 
+        const CONFIG_SUPABASE_KEY = 'sb_secret_NVcVd1UxyjGQT6Ez2A_UvA_8GhOIl35';
+        // ==========================================
+
+        // Par officiel du Golf de Rouen Mont-Saint-Aignan (1 à 18)
+        const MSA_PARS = [4, 4, 3, 5, 4, 4, 3, 4, 5, 4, 4, 3, 5, 4, 4, 3, 4, 5];
+
+        let currentHoleIndex = 0; // 0 à 17
+        let roundData = {
+            playerName: "",
+            date: "",
+            scores: Array(18).fill(null).map(() => ({ brut: 4, putts: 2, fairway: "oui" }))
+        };
+
+        let supabaseClient = null;
+
+        window.onload = function() {
+            document.getElementById('match-date').valueAsDate = new Date();
+            loadConfigFromStorage();
+        };
+
+        function toggleConfig() {
+            const panel = document.getElementById('config-panel');
+            panel.classList.toggle('hidden');
+        }
+
+        function saveConfig() {
+            const url = document.getElementById('supabase-url').value.trim();
+            const key = document.getElementById('supabase-key').value.trim();
+            if(url && key) {
+                localStorage.setItem('MSA_SUPABASE_URL', url);
+                localStorage.setItem('MSA_SUPABASE_KEY', key);
+                initSupabase(url, key);
+                toggleConfig();
+            } else {
+                alert("Veuillez remplir l'URL et la clé.");
+            }
+        }
+
+        function loadConfigFromStorage() {
+            // Utilise les constantes en haut par défaut, ou ce qui est sauvegardé en local
+            const url = localStorage.getItem('MSA_SUPABASE_URL') || (CONFIG_SUPABASE_URL.includes('TON_PROJECT_ID') ? '' : CONFIG_SUPABASE_URL);
+            const key = localStorage.getItem('MSA_SUPABASE_KEY') || (CONFIG_SUPABASE_KEY.includes('TA_CLE_ANON') ? '' : CONFIG_SUPABASE_KEY);
+            
+            if(url && key) {
+                document.getElementById('supabase-url').value = url;
+                document.getElementById('supabase-key').value = key;
+                initSupabase(url, key);
+            }
+        }
+
+        function initSupabase(url, key) {
+            try {
+                supabaseClient = window.supabase.createClient(url, key);
+                const statusEl = document.getElementById('sync-status');
+                statusEl.textContent = "Connecté 🟢";
+                statusEl.className = "text-emerald-400 font-medium";
+            } catch(e) {
+                console.error(e);
+            }
+        }
+
+        function startRound() {
+            const nameSelect = document.getElementById('player-name').value;
+            const dateInput = document.getElementById('match-date').value;
+            if(!nameSelect) {
+                alert("Veuillez sélectionner un joueur.");
+                return;
+            }
+            roundData.playerName = nameSelect;
+            roundData.date = dateInput;
+
+            for(let i=0; i<18; i++) {
+                roundData.scores[i].brut = MSA_PARS[i];
+            }
+
+            document.getElementById('step-player').classList.add('hidden');
+            document.getElementById('step-game').classList.remove('hidden');
+            loadHoleUI();
+        }
+
+        function loadHoleUI() {
+            const par = MSA_PARS[currentHoleIndex];
+            document.getElementById('current-hole-num').textContent = currentHoleIndex + 1;
+            document.getElementById('hole-par-display').textContent = `Par ${par}`;
+            
+            const currentHoleObj = roundData.scores[currentHoleIndex];
+            document.getElementById('gross-score').textContent = currentHoleObj.brut;
+            
+            updateScoreComment(currentHoleObj.brut, par);
+            highlightPutts(currentHoleObj.putts);
+            handleFairwayDisplay(par, currentHoleObj.fairway);
+            updateSummary();
+        }
+
+        function adjustScore(delta) {
+            let current = roundData.scores[currentHoleIndex].brut;
+            current += delta;
+            if(current < 1) current = 1;
+            roundData.scores[currentHoleIndex].brut = current;
+            document.getElementById('gross-score').textContent = current;
+            updateScoreComment(current, MSA_PARS[currentHoleIndex]);
+        }
+
+        function updateScoreComment(score, par) {
+            const diff = score - par;
+            const el = document.getElementById('score-comment');
+            if(diff === -3) { el.textContent = "Albatros 🦅🦅"; el.className = "text-xs font-bold px-2.5 py-1 rounded-full bg-purple-900 text-purple-200"; }
+            else if(diff === -2) { el.textContent = "Eagle 🦅"; el.className = "text-xs font-bold px-2.5 py-1 rounded-full bg-indigo-900 text-indigo-200"; }
+            else if(diff === -1) { el.textContent = "Birdie 🐦"; el.className = "text-xs font-bold px-2.5 py-1 rounded-full bg-blue-900 text-blue-200"; }
+            else if(diff === 0) { el.textContent = "Par 🟢"; el.className = "text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-900 text-emerald-200"; }
+            else if(diff === 1) { el.textContent = "Bogey 🟨"; el.className = "text-xs font-bold px-2.5 py-1 rounded-full bg-amber-900 text-amber-200"; }
+            else if(diff === 2) { el.textContent = "Double Bogey 🟥"; el.className = "text-xs font-bold px-2.5 py-1 rounded-full bg-rose-900 text-rose-200"; }
+            else { el.textContent = `${diff > 0 ? '+' + diff : diff}`; el.className = "text-xs font-bold px-2.5 py-1 rounded-full bg-red-950 text-red-200"; }
+        }
+
+        function setPutts(val) {
+            roundData.scores[currentHoleIndex].putts = val;
+            highlightPutts(val);
+        }
+
+        function highlightPutts(val) {
+            const buttons = document.querySelectorAll('#putts-selector button');
+            buttons.forEach((btn, idx) => {
+                if(idx + 1 === val || (idx === 3 && val >= 4)) {
+                    btn.className = "putt-btn bg-emerald-600 border border-emerald-500 py-2 rounded-lg text-sm font-semibold text-white";
+                } else {
+                    btn.className = "putt-btn bg-slate-900 border border-slate-700 py-2 rounded-lg text-sm font-semibold hover:border-emerald-500 text-slate-300";
+                }
+            });
+        }
+
+        function handleFairwayDisplay(par, val) {
+            const fwContainer = document.getElementById('fairway-container');
+            if(par === 3) {
+                fwContainer.style.display = 'none';
+                roundData.scores[currentHoleIndex].fairway = 'na';
+            } else {
+                fwContainer.style.display = 'block';
+                highlightFairway(val);
+            }
+        }
+
+        function setFairway(val) {
+            roundData.scores[currentHoleIndex].fairway = val;
+            highlightFairway(val);
+        }
+
+        function highlightFairway(val) {
+            const btnOui = document.getElementById('fw-oui');
+            const btnNon = document.getElementById('fw-non');
+            if(val === 'oui') {
+                btnOui.className = "fw-btn bg-emerald-600 border border-emerald-500 py-2.5 rounded-lg text-xs font-semibold uppercase tracking-wider text-white";
+                btnNon.className = "fw-btn bg-slate-900 border border-slate-700 py-2.5 rounded-lg text-xs font-semibold uppercase tracking-wider text-slate-300";
+            } else {
+                btnNon.className = "fw-btn bg-rose-600 border border-rose-500 py-2.5 rounded-lg text-xs font-semibold uppercase tracking-wider text-white";
+                btnOui.className = "fw-btn bg-slate-900 border border-slate-700 py-2.5 rounded-lg text-xs font-semibold uppercase tracking-wider text-slate-300";
+            }
+        }
+
+        function nextHole() {
+            if(currentHoleIndex < 17) {
+                currentHoleIndex++;
+                loadHoleUI();
+            }
+        }
+
+        function prevHole() {
+            if(currentHoleIndex > 0) {
+                currentHoleIndex--;
+                loadHoleUI();
+            }
+        }
+
+        function updateSummary() {
+            let completed = 0;
+            let totalGross = 0;
+            roundData.scores.forEach(s => {
+                if(s.brut) {
+                    completed++;
+                    totalGross += s.brut;
+                }
+            });
+            document.getElementById('holes-completed').textContent = completed;
+            document.getElementById('total-gross').textContent = totalGross;
+        }
+
+        async function saveCurrentHole() {
+            const holeNum = currentHoleIndex + 1;
+            const dataHole = roundData.scores[currentHoleIndex];
+
+            // 1. Sauvegarde locale de sécurité
+            localStorage.setItem('MSA_LAST_ROUND', JSON.stringify(roundData));
+
+            // 2. Envoi Supabase si configuré
+            if(supabaseClient) {
+                const { error } = await supabaseClient
+                    .from('scores_golf')
+                    .upsert([
+                        { 
+                            nom_joueur: roundData.playerName, 
+                            date_partie: roundData.date, 
+                            numero_trou: holeNum, 
+                            score_brut: dataHole.brut,
+                            nombre_putts: dataHole.putts,
+                            fairway_touche: dataHole.fairway
+                        }
+                    ], { onConflict: 'nom_joueur,date_partie,numero_trou' });
+
+                if(error) {
+                    console.error("Erreur sync Supabase :", error);
+                    alert("Enregistré en local, mais erreur de sync cloud : " + error.message);
+                } else {
+                    alert(`Trou n°${holeNum} enregistré et synchronisé ! ☁️`);
+                }
+            } else {
+                alert(`Trou n°${holeNum} enregistré en local (Supabase non configuré).`);
+            }
+
+            if(currentHoleIndex < 17) {
+                nextHole();
+            }
+        }
+    </script>
+</body>
+</html>
