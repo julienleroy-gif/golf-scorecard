@@ -237,25 +237,43 @@
             }
         }
 
-        function startRound() {
+       function startRound() {
+            // Récupération des valeurs des menus déroulants
+            const matchIdInput = document.getElementById('match-id').value;
             const nameSelect = document.getElementById('player-name').value;
+            const startHoleSelect = parseInt(document.getElementById('start-hole').value);
             const dateInput = document.getElementById('match-date').value;
+
+            // Vérifications
+            if(!matchIdInput) {
+                alert("Veuillez sélectionner un ID de Match (M1 à M10).");
+                return;
+            }
             if(!nameSelect) {
                 alert("Veuillez sélectionner un joueur.");
                 return;
             }
+
+            // Enregistrement dans l'objet global roundData
+            roundData.matchId = matchIdInput; // On stocke l'ID du match
             roundData.playerName = nameSelect;
             roundData.date = dateInput;
+            
+            // Initialisation de l'index du trou (ex: si trou de départ = 5, l'index est 4)
+            currentHoleIndex = startHoleSelect - 1;
 
+            // Initialisation des pars par défaut pour les trous
             for(let i=0; i<18; i++) {
-                roundData.scores[i].brut = MSA_PARS[i];
+                if(!roundData.scores[i].brut) {
+                    roundData.scores[i].brut = MSA_PARS[i];
+                }
             }
 
+            // Bascule des écrans
             document.getElementById('step-player').classList.add('hidden');
             document.getElementById('step-game').classList.remove('hidden');
             loadHoleUI();
         }
-
         function loadHoleUI() {
             const par = MSA_PARS[currentHoleIndex];
             document.getElementById('current-hole-num').textContent = currentHoleIndex + 1;
