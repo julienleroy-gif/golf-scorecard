@@ -284,7 +284,14 @@
             
             // Réinitialisation visuelle des sélecteurs si non saisis
             clearVisualSelections();
-            updateSummary();
+            const fairwayContainer = document.getElementById('fairway-container');
+            if (par === 3) {
+                fairwayContainer.style.display = 'none'; // Cache le menu fairway sur les Par 3
+                currentHoleObj.fairway = 'na'; // Valeur par défaut pour les Par 3
+            } else {
+                fairwayContainer.style.display = 'block'; // Affiche le menu sur les Par 4 et Par 5
+            }
+           updateSummary();
         }
 
         function clearVisualSelections() {
