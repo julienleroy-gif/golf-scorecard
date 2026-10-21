@@ -225,25 +225,39 @@
                 console.error(e);
             }
         }
-
-        function startRound() {
+function startRound() {
+            const matchIdInput = document.getElementById('match-id').value.trim();
             const nameSelect = document.getElementById('player-name').value;
+            const startHoleSelect = parseInt(document.getElementById('start-hole').value);
             const dateInput = document.getElementById('match-date').value;
-            if(!nameSelect) {
-                alert("Veuillez sélectionner un joueur.");
+
+            if(!matchIdInput) {
+                alert("Veuillez renseigner l'ID du match.");
                 return;
             }
+            if(!nameSelect) {
+                alert("Veuillez sélectionner un joueur ou une paire.");
+                return;
+            }
+
+            roundData.matchId = matchIdInput;
             roundData.playerName = nameSelect;
             roundData.date = dateInput;
+            
+            // Initialisation de l'index de départ (ex: Trou 10 -> index 9)
+            currentHoleIndex = startHoleSelect - 1;
 
             for(let i=0; i<18; i++) {
-                roundData.scores[i].brut = MSA_PARS[i];
+                if(!roundData.scores[i].brut) {
+                    roundData.scores[i].brut = MSA_PARS[i];
+                }
             }
 
             document.getElementById('step-player').classList.add('hidden');
             document.getElementById('step-game').classList.remove('hidden');
             loadHoleUI();
         }
+       
 
         function loadHoleUI() {
             const par = MSA_PARS[currentHoleIndex];
