@@ -267,20 +267,33 @@
             document.getElementById('step-game').classList.remove('hidden');
             loadHoleUI();
         }
-        function loadHoleUI() {
+       function loadHoleUI() {
+            const holeNum = currentHoleIndex + 1;
             const par = MSA_PARS[currentHoleIndex];
-            document.getElementById('current-hole-num').textContent = currentHoleIndex + 1;
+            
+            document.getElementById('current-hole-num').textContent = holeNum;
             document.getElementById('hole-par-display').textContent = `Par ${par}`;
             
             const currentHoleObj = roundData.scores[currentHoleIndex];
-            document.getElementById('gross-score').textContent = currentHoleObj.brut;
             
-            updateScoreComment(currentHoleObj.brut, par);
-            highlightPutts(currentHoleObj.putts);
-            handleFairwayDisplay(par, currentHoleObj.fairway);
+            // Si le score n'a pas encore été saisi sur ce trou, on affiche une valeur de base (ex: le par, mais sans l'enregistrer comme validé) ou un tiret. Mettons le Par par défaut pour le confort d'affichage, mais non validé :
+            let displayScore = currentHoleObj.brut !== null ? currentHoleObj.brut : par;
+            document.getElementById('gross-score').textContent = displayScore;
+            
+            updateScoreComment(displayScore, par);
+            
+            // Réinitialisation visuelle des sélecteurs si non saisis
+            clearVisualSelections();
             updateSummary();
         }
 
+        function clearVisualSelections() {
+            document.querySelectorAll('#putts-selector button').forEach(btn => {
+                btn.className = "putt-btn bg-slate-900 border border-slate-700 py-2 rounded-lg text-sm font-semibold hover:border-emerald-500 text-slate-300";
+            });
+            document.getElementById('fw-oui').className = "fw-btn bg-slate-900 border border-slate-700 py-2.5 rounded-lg text-xs font-semibold uppercase tracking-wider text-slate-300";
+            document.getElementById('fw-non').className = "fw-btn bg-slate-900 border border-slate-700 py-2.5 rounded-lg text-xs font-semibold uppercase tracking-wider text-slate-300";
+        }
         function adjustScore(delta) {
             let current = roundData.scores[currentHoleIndex].brut;
             current += delta;
