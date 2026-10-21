@@ -337,7 +337,7 @@
             localStorage.setItem('MSA_LAST_ROUND', JSON.stringify(roundData));
 
             // 2. Envoi Supabase si configuré
-            if(supabaseClient) {
+          if(supabaseClient) {
                 const { error } = await supabaseClient
                     .from('scores_golf')
                     .upsert([
@@ -349,7 +349,7 @@
                             nombre_putts: dataHole.putts,
                             fairway_touche: dataHole.fairway
                         }
-                    ], { onConflict: 'nom_joueur,date_partie,numero_trou' });
+                    ]);
 
                 if(error) {
                     console.error("Erreur sync Supabase :", error);
