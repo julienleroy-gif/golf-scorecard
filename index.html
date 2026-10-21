@@ -277,7 +277,7 @@
             const currentHoleObj = roundData.scores[currentHoleIndex];
             
             // Si le score n'a pas encore été saisi sur ce trou, on affiche une valeur de base (ex: le par, mais sans l'enregistrer comme validé) ou un tiret. Mettons le Par par défaut pour le confort d'affichage, mais non validé :
-            let displayScore = currentHoleObj.brut !== null ? currentHoleObj.brut : par;
+            let displayScore = currentHoleObj.brut !== null ? currentHoleObj.brut : 0;
             document.getElementById('gross-score').textContent = displayScore;
             
             updateScoreComment(displayScore, par);
