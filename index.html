@@ -45,7 +45,21 @@
         
         <!-- Étape 1 : Sélection du joueur -->
         <div id="step-player" class="bg-slate-800 p-5 rounded-xl shadow border border-slate-700 space-y-4">
-            <h2 class="text-base font-semibold text-emerald-400">1. Qui joue aujourd'hui ?</h2>
+            <h2 class="text-base font-semibold text-emerald-400">Coupe de Normandie 2027</h2>
+            <div>
+              <!-- Menu déroulant ID du Match -->
+            <div>
+                <label class="block text-xs text-slate-400 mb-1">ID du Match</label>
+                <select id="match-id" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white text-sm">
+                    <option value="">-- Choisir un match --</option>
+                    <script>
+                        for(let i=1; i<=10; i++) {
+                            document.write(`<option value="M${i}">Match M${i}</option>`);
+                        }
+                    </script>
+                </select>
+            </div>
+
             <div>
                 <label class="block text-xs text-slate-400 mb-1">Nom du joueur</label>
                 <select id="player-name" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white text-sm">
@@ -57,13 +71,28 @@
                     </script>
                 </select>
             </div>
+
+            <!-- Menu déroulant Trou de départ -->
+            <div>
+                <label class="block text-xs text-slate-400 mb-1">Trou de départ</label>
+                <select id="start-hole" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white text-sm">
+                    <script>
+                        for(let i=1; i<=18; i++) {
+                            document.write(`<option value="${i}">Trou n°${i}</option>`);
+                        }
+                    </script>
+                </select>
+            </div>
+
             <div>
                 <label class="block text-xs text-slate-400 mb-1">Date de la partie</label>
                 <input type="date" id="match-date" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white text-sm">
             </div>
+
             <button onclick="startRound()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-3 rounded-lg transition shadow-lg">
                 Commencer la partie ⛳
             </button>
+        </div>  
         </div>
 
         <!-- Étape 2 : Saisie des scores trou par trou -->
