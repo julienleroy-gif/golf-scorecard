@@ -46,11 +46,11 @@
                 <label class="block text-xs text-slate-400 mb-1">Nom du joueur</label>
                 <select id="player-name" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white text-sm">
                     <option value="">-- Choisir un joueur --</option>
-                    <option value="Julien Leroy">Julien Leroy</option>
-                    <option value="Alain Verna">Alain Verna</option>
-                    <option value="Membre 3">Membre 3</option>
-                    <option value="Membre 4">Membre 4</option>
-                    <option value="Membre 5">Membre 5</option>
+                    <script>
+                        for(let i=1; i<=30; i++) {
+                            document.write(`<option value="Joueur ${i}">Joueur ${i}</option>`);
+                        }
+                    </script>
                 </select>
             </div>
             <div>
@@ -147,7 +147,7 @@
         // ==========================================
 
         // Par officiel du Golf de Rouen Mont-Saint-Aignan (1 à 18)
-        const MSA_PARS = [4, 4, 3, 5, 4, 4, 3, 4, 5, 4, 4, 3, 5, 4, 4, 3, 4, 5];
+        const MSA_PARS = [4, 4, 4, 3, 4, 4, 3, 4, 4, 3, 5, 4, 4, 5, 3, 5, 3, 4];
 
         let currentHoleIndex = 0; // 0 à 17
         let roundData = {
