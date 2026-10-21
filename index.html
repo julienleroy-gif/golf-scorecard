@@ -10,16 +10,19 @@
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col justify-between">
 
     <!-- En-tête -->
-    <header class="bg-emerald-800 text-white p-4 shadow-md flex justify-between items-center">
-        <div>
-            <h1 class="text-lg font-bold">Golf de Rouen MSA</h1>
-            <p class="text-xs text-emerald-200">Coupe de Normandie - Saisie Équipe</p>
+ <header class="bg-emerald-800 text-white p-3 shadow-md flex justify-between items-center">
+        <div class="flex items-center space-x-3">
+            <!-- Remplace l'URL ci-dessous par le lien direct du logo de MSA si tu en as un -->
+            <img src="https://drive.google.com/file/d/1QoJEwiaLtj2CJvE75qpquiLyeIDAedX6/view?usp=drive_link" alt="Logo MSA" class="w-10 h-10 rounded-full object-cover bg-white p-0.5">
+            <div>
+                <h1 class="text-base font-bold leading-tight">Golf de Rouen MSA</h1>
+                <p class="text-xs text-emerald-200">Suivi Entraînement - Équipe</p>
+            </div>
         </div>
         <button onclick="toggleConfig()" class="text-xs bg-emerald-700 hover:bg-emerald-600 px-3 py-1.5 rounded transition">
             ⚙️ Supabase
         </button>
     </header>
-
     <!-- Panneau de configuration Supabase (escamotable) -->
     <div id="config-panel" class="hidden bg-slate-800 p-4 border-b border-slate-700 text-sm">
         <h3 class="font-semibold text-emerald-400 mb-2">Configuration Supabase</h3>
