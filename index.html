@@ -7,7 +7,28 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col justify-between">
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col justify-between relative">
+
+    <!-- Notification Toast (Non bloquante) -->
+    <div id="toast" class="hidden fixed top-4 left-1/2 transform -translate-x-1/2 z-50 px-4 py-2.5 rounded-xl shadow-2xl text-xs font-bold text-white transition-all duration-300 bg-emerald-600">
+        Message
+    </div>
+
+    <!-- Modal Leaderboard Live -->
+    <div id="leaderboard-modal" class="hidden fixed inset-0 bg-black/80 z-40 flex items-center justify-center p-4">
+        <div class="bg-slate-800 border border-slate-700 rounded-xl max-w-md w-full p-5 space-y-4 max-h-[80vh] flex flex-col shadow-2xl">
+            <div class="flex justify-between items-center border-b border-slate-700 pb-3">
+                <h3 class="font-bold text-emerald-400 text-base">🏆 Direct du Parcours (Aujourd'hui)</h3>
+                <button onclick="toggleLeaderboard()" class="text-slate-400 hover:text-white text-lg font-bold">✕</button>
+            </div>
+            <div id="leaderboard-content" class="overflow-y-auto space-y-2 flex-1 text-xs">
+                <p class="text-slate-400 text-center py-4">Chargement des scores...</p>
+            </div>
+            <button onclick="loadLeaderboard()" class="w-full bg-slate-700 hover:bg-slate-600 text-white py-2 rounded-lg text-xs font-semibold">
+                🔄 Actualiser
+            </button>
+        </div>
+    </div>
 
     <!-- En-tête avec logo -->
     <header class="bg-emerald-800 text-white p-3 shadow-md flex justify-between items-center">
@@ -18,9 +39,14 @@
                 <p class="text-xs text-emerald-200">Suivi Entraînement - Équipe</p>
             </div>
         </div>
-        <button onclick="toggleConfig()" class="text-xs bg-emerald-700 hover:bg-emerald-600 px-3 py-1.5 rounded transition">
-            ⚙️ Supabase
-        </button>
+        <div class="flex space-x-1.5">
+            <button onclick="toggleLeaderboard()" class="text-xs bg-emerald-700 hover:bg-emerald-600 px-2.5 py-1.5 rounded transition font-semibold" title="Scores en direct">
+                🏆 Live
+            </button>
+            <button onclick="toggleConfig()" class="text-xs bg-emerald-700 hover:bg-emerald-600 px-2.5 py-1.5 rounded transition" title="Configuration Supabase">
+                ⚙️
+            </button>
+        </div>
     </header>
 
     <!-- Panneau de configuration Supabase (escamotable) -->
@@ -238,6 +264,15 @@
             loadConfigFromStorage();
         };
 
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.remove('hidden');
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 1800);
+        }
+
         function toggleConfig() {
             const panel = document.getElementById('config-panel');
             panel.classList.toggle('hidden');
@@ -251,6 +286,7 @@
                 localStorage.setItem('MSA_SUPABASE_KEY', key);
                 initSupabase(url, key);
                 toggleConfig();
+                showToast("Accès Supabase enregistrés !");
             } else {
                 alert("Veuillez remplir l'URL et la clé.");
             }
@@ -551,7 +587,7 @@
             document.getElementById('stat-perdus').textContent = perdus;
             document.getElementById('stat-brut').textContent = totalBrut;
             document.getElementById('stat-fairways').textContent = fwPercent + "%";
-            document.getElementById('stat-gir',).textContent = `${girCount} / ${girCountable} (${girPercent}%)`;
+            document.getElementById('stat-gir').textContent = `${girCount} / ${girCountable} (${girPercent}%)`;
             document.getElementById('stat-putts').textContent = avgPutts;
 
             document.getElementById('step-game').classList.add('hidden');
@@ -587,16 +623,95 @@
 
                 if(error) {
                     console.error("Erreur sync Supabase :", error);
-                    alert("Enregistré en local, mais erreur de sync cloud : " + error.message);
+                    showToast("Erreur synchro cloud (sauvé en local)");
                 } else {
-                    alert(`Trou n°${holeNum} enregistré et synchronisé ! ☁️`);
+                    showToast(`Trou n°${holeNum} enregistré & synchro ! ☁️`);
                 }
             } else {
-                alert(`Trou n°${holeNum} enregistré en local (Supabase non configuré).`);
+                showToast(`Trou n°${holeNum} enregistré (local).`);
             }
 
             updateSummary();
             nextHole();
+        }
+
+        function toggleLeaderboard() {
+            const modal = document.getElementById('leaderboard-modal');
+            modal.classList.toggle('hidden');
+            if(!modal.classList.contains('hidden')) {
+                loadLeaderboard();
+            }
+        }
+
+        async function loadLeaderboard() {
+            const container = document.getElementById('leaderboard-content');
+            if(!supabaseClient) {
+                container.innerHTML = `<p class="text-rose-400 text-center py-4">Supabase non configuré ou non connecté.</p>`;
+                return;
+            }
+
+            container.innerHTML = `<p class="text-slate-400 text-center py-4">Chargement du live...</p>`;
+            const today = document.getElementById('match-date').value || new Date().toISOString().split('T')[0];
+
+            const { data, error } = await supabaseClient
+                .from('scores_golf')
+                .select('*')
+                .eq('date_partie', today);
+
+            if(error) {
+                container.innerHTML = `<p class="text-rose-400 text-center py-4">Erreur : ${error.message}</p>`;
+                return;
+            }
+
+            if(!data || data.length === 0) {
+                container.innerHTML = `<p class="text-slate-400 text-center py-4">Aucun score en direct pour aujourd'hui (${today}).</p>`;
+                return;
+            }
+
+            const matchesMap = {};
+            data.forEach(r => {
+                const matchId = r.match_id || 'Match Libre';
+                if(!matchesMap[matchId]) matchesMap[matchId] = {};
+                
+                const player = r.nom_joueur || 'Inconnu';
+                if(!matchesMap[matchId][player]) {
+                    matchesMap[matchId][player] = { totalBrut: 0, holesPlayed: 0, standing: 0 };
+                }
+
+                matchesMap[matchId][player].totalBrut += (r.score_brut || 0);
+                matchesMap[matchId][player].holesPlayed++;
+                if(r.resultat_trou === 'gagne') matchesMap[matchId][player].standing++;
+                if(r.resultat_trou === 'perdu') matchesMap[matchId][player].standing--;
+            });
+
+            container.innerHTML = Object.keys(matchesMap).map(matchId => {
+                const players = matchesMap[matchId];
+                const playerNames = Object.keys(players);
+
+                let playersHtml = playerNames.map(playerName => {
+                    const pData = players[playerName];
+                    let statusBadge = `<span class="text-slate-400 font-bold">AS</span>`;
+                    if(pData.standing > 0) statusBadge = `<span class="text-emerald-400 font-bold">${pData.standing} Up</span>`;
+                    if(pData.standing < 0) statusBadge = `<span class="text-rose-400 font-bold">${Math.abs(pData.standing)} Down</span>`;
+
+                    return `
+                        <div class="bg-slate-900 p-2.5 rounded-lg border border-slate-800 flex justify-between items-center text-xs">
+                            <div>
+                                <span class="font-bold text-white">${playerName}</span>
+                                <div class="text-[10px] text-slate-400">Trous : ${pData.holesPlayed} • Brut : ${pData.totalBrut}</div>
+                            </div>
+                            <div>${statusBadge}</div>
+                        </div>
+                    `;
+                }).join('');
+
+                return `
+                    <div class="bg-slate-900/60 border border-slate-800 rounded-xl p-3 space-y-2">
+                        <div class="font-bold text-emerald-400 text-xs border-b border-slate-800 pb-1">📌 ${matchId}</div>
+                        <div class="space-y-1.5">${playersHtml}</div>
+                    </div>
+                `;
+            }).join('');
         }
     </script>
 </body>
