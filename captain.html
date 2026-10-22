@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MSA Golf - Dashboard Capitaine</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between p-4">
+
+    <!-- En-tête -->
+    <header class="bg-emerald-900 text-white p-4 rounded-xl shadow-md flex justify-between items-center max-w-2xl mx-auto w-full">
+        <div>
+            <h1 class="text-lg font-bold">Golf de Rouen MSA</h1>
+            <p class="text-xs text-emerald-300">📊 Live Capitaine - Coupe de Normandie</p>
+        </div>
+        <button onclick="loadLiveScores()" class="bg-emerald-700 hover:bg-emerald-600 px-3 py-2 rounded-lg text-xs font-bold transition flex items-center space-x-1">
+            <span>🔄 Actualiser</span>
+        </button>
+    </header>
+
+    <!-- Corps de la page -->
+    <main class="flex-1 max-w-2xl mx-auto w-full space-y-4 mt-4">
+        
+        <!-- Filtre par date ou match -->
+        <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 flex items-center justify-between text-xs">
+            <div>
+                <span class="text-slate-400">Date du jour :</span>
+                <input type="date" id="filter-date" onchange="loadLiveScores()" class="bg-slate-800 border border-slate-700 rounded p-1 text-white ml-2">
+            </div>
+            <div id="last-update" class="text-emerald-400 font-medium">En attente...</div>
+        </div>
+
+        <!-- Liste des matchs en direct -->
+        <div id="matches-container" class="space-y-3">
+            <div class="text-center py-10 text-slate-500">Chargement des scores en direct...</div>
+        </div>
+
+    </main>
+
+    <!-- Pied de page -->
+    <footer class="text-center text-xs text-slate-600 py-4">
+        MSA Golf Dashboard • Synchro Cloud Supabase ☁️
+    </footer>
+
+    <!-- Script de liaison Supabase & Live -->
+    <script>
+        // ==========================================
+        // ⚙️ TES ACCÈS SUPABASE (Mêmes que l'appli joueur)
+        // ==========================================
+        const CONFIG_SUPABASE_URL = 'https://gtjyobxafohwtgugkeib.supabase.co'; 
+        const CONFIG_SUPABASE_KEY = 'sb_publishable_slOa7zwBkJbhgnGvEIeJdw_se57JYRX';
+        // ==========================================
+
+        const MSA_PARS = [4, 4, 4, 3, 4, 4, 3, 4, 4, 3, 5, 4, 4, 5, 3, 5, 3, 4];
+        let supabaseClient = null;
+
+        window.onload = function() {
+            document.getElementById('filter-date').valueAsDate = new Date();
+            initSupabase();
+            loadLiveScores();
+
+            // Actualisation automatique toutes les 30 secondes
+            setInterval(loadLiveScores, 30000);
+        };
+
+        function initSupabase() {
+            try {
+                supabaseClient = window.supabase.createClient(CONFIG_SUPABASE_URL, CONFIG_SUPABASE_KEY);
+            } catch(e) {
+                console.error(e);
+            }
+        }
+
+        async function loadLiveScores() {
+            if(!supabaseClient) return;
+
+            const selectedDate = document.getElementById('filter-date').value;
+            const updateEl = document.getElementById('last-update');
+            updateEl.textContent = "Mise à jour...";
+
+            const { data, error } = await supabaseClient
+                .from('scores_golf')
+                .select('*')
+                .eq('date_partie', selectedDate)
+                .order('numero_trou', { ascending: true });
+
+            if(error) {
+                console.error(error);
+                updateEl.textContent = "Erreur de synchro";
+                return;
+            }
+
+            updateEl.textContent = "À jour " + new Date().toLocaleTimeString();
+            renderDashboard(data);
+        }
+
+        function renderDashboard(rows) {
+            const container = document.getElementById('matches-container');
+
+            if(!rows || rows.length === 0) {
+                container.innerHTML = `
+                    <div class="bg-slate-900 border border-slate-800 p-8 rounded-xl text-center text-slate-500">
+                        Aucun score enregistré pour cette date.
+                    </div>
+                `;
+                return;
+            }
+
+            // Regroupement par match_id, puis par joueur
+            const matchesMap = {};
+            rows.forEach(r => {
+                const matchId = r.match_id || 'Match Libre';
+                if(!matchesMap[matchId]) matchesMap[matchId] = {};
+                
+                const player = r.nom_joueur || 'Inconnu';
+                if(!matchesMap[matchId][player]) {
+                    matchesMap[matchId][player] = { scores: Array(18).fill(null), totalBrut: 0, holesPlayed: 0, standing: 0 };
+                }
+
+                const holeIdx = r.numero_trou - 1;
+                if(holeIdx >= 0) {
+                    matchesMap[matchId][player].scores[holeIdx] = r.score_brut;
+                    matchesMap[matchId][player].totalBrut += (r.score_brut || 0);
+                    matchesMap[matchId][player].holesPlayed++;
+                    
+                    if(r.resultat_trou === 'gagne') matchesMap[matchId][player].standing++;
+                    if(r.resultat_trou === 'perdu') matchesMap[matchId][player].standing--;
+                }
+            });
+
+            // Construction du HTML pour chaque match
+            container.innerHTML = Object.keys(matchesMap).map(matchId => {
+                const players = matchesMap[matchId];
+                const playerNames = Object.keys(players);
+
+                let playersHtml = playerNames.map(playerName => {
+                    const pData = players[playerName];
+                    let statusBadge = `<span class="text-slate-400">AS</span>`;
+                    if(pData.standing >  0) statusBadge = `<span class="text-emerald-400 font-bold">${pData.standing} Up</span>`;
+                    if(pData.standing < 0) statusBadge = `<span class="text-rose-400 font-bold">${Math.abs(pData.standing)} Down</span>`;
+
+                    return `
+                        <div class="bg-slate-900 p-3 rounded-lg border border-slate-800 flex justify-between items-center">
+                            <div>
+                                <div class="font-bold text-white text-sm">${playerName}</div>
+                                <div class="text-[11px] text-slate-400">Trous joués : ${pData.holesPlayed} • Brut : <strong class="text-emerald-400">${pData.totalBrut}</strong></div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-xs uppercase tracking-wider text-slate-500">Statut</div>
+                                <div class="text-sm">${statusBadge}</div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                return `
+                    <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-4 space-y-3 shadow-lg">
+                        <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+                            <h3 class="font-bold text-emerald-400 text-sm">📌 ${matchId}</h3>
+                            <span class="text-[10px] bg-emerald-950 text-emerald-300 px-2 py-0.5 rounded border border-emerald-800">En direct</span>
+                        </div>
+                        <div class="space-y-2">
+                            ${playersHtml}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+    </script>
+</body>
+</html>
