@@ -118,8 +118,14 @@
                     <div id="score-comment" class="text-xs font-bold px-2.5 py-1 rounded-full bg-slate-700 text-slate-300">
                         Par
                     </div>
+                </div><div>
+                    <label class="block text-xs text-slate-400 mb-2">Résultat du Trou</label>
+                    <div class="grid grid-cols-3 gap-2" id="match-result-selector">
+                        <button onclick="setHoleResult('gagne')" id="res-gagne" class="res-btn bg-slate-900 border border-slate-700 py-2.5 rounded-lg text-xs font-semibold uppercase tracking-wider text-slate-300 hover:border-emerald-500">Gagné</button>
+                        <button onclick="setHoleResult('partage')" id="res-partage" class="res-btn bg-slate-900 border border-slate-700 py-2.5 rounded-lg text-xs font-semibold uppercase tracking-wider text-slate-300 hover:border-emerald-500">Partagé</button>
+                        <button onclick="setHoleResult('perdu')" id="res-perdu" class="res-btn bg-slate-900 border border-slate-700 py-2.5 rounded-lg text-xs font-semibold uppercase tracking-wider text-slate-300 hover:border-emerald-500">Perdu</button>
+                    </div>
                 </div>
-
                 <!-- Score Brut -->
                 <div>
                     <label class="block text-xs text-slate-400 mb-2">Coups joués (Brut)</label>
@@ -150,6 +156,10 @@
                     </div>
                 </div>
 
+<div class="bg-slate-800 border border-emerald-600/50 p-3 rounded-xl text-center shadow">
+                <span class="text-xs text-slate-400 uppercase tracking-wider block">Statut du Match</span>
+                <span id="match-status-display" class="text-lg font-extrabold text-emerald-400">All Square</span>
+            </div>
                 <!-- Bouton Enregistrer & Sync -->
                 <button onclick="saveCurrentHole()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-3 rounded-xl transition shadow-lg text-sm">
                     Valider le trou et envoyer ☁️
