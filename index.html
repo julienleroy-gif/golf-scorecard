@@ -9,10 +9,9 @@
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col justify-between">
 
-<!-- En-tête avec logo -->
+    <!-- En-tête avec logo -->
     <header class="bg-emerald-800 text-white p-3 shadow-md flex justify-between items-center">
         <div class="flex items-center space-x-3">
-            <!-- Remplace l'URL ci-dessous par le lien direct du logo de MSA si tu en as un -->
             <img src="logo-golf-rouen.png" alt="Logo MSA" class="w-10 h-10 rounded-full object-cover bg-white p-0.5">
             <div>
                 <h1 class="text-base font-bold leading-tight">Golf de Rouen MSA</h1>
@@ -46,8 +45,8 @@
         <!-- Étape 1 : Sélection du joueur -->
         <div id="step-player" class="bg-slate-800 p-5 rounded-xl shadow border border-slate-700 space-y-4">
             <h2 class="text-base font-semibold text-emerald-400">Coupe de Normandie 2027</h2>
-            <div>
-              <!-- Menu déroulant ID du Match -->
+            
+            <!-- Menu déroulant ID du Match -->
             <div>
                 <label class="block text-xs text-slate-400 mb-1">ID du Match</label>
                 <select id="match-id" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white text-sm">
@@ -92,7 +91,6 @@
             <button onclick="startRound()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-3 rounded-lg transition shadow-lg">
                 Commencer la partie ⛳
             </button>
-        </div>  
         </div>
 
         <!-- Étape 2 : Saisie des scores trou par trou -->
@@ -116,9 +114,12 @@
                         <p class="text-xs text-slate-500">Mont-Saint-Aignan</p>
                     </div>
                     <div id="score-comment" class="text-xs font-bold px-2.5 py-1 rounded-full bg-slate-700 text-slate-300">
-                        Par
+                        -
                     </div>
-                </div><div>
+                </div>
+
+                <!-- Résultat du Trou -->
+                <div>
                     <label class="block text-xs text-slate-400 mb-2">Résultat du Trou</label>
                     <div class="grid grid-cols-3 gap-2" id="match-result-selector">
                         <button onclick="setHoleResult('gagne')" id="res-gagne" class="res-btn bg-slate-900 border border-slate-700 py-2.5 rounded-lg text-xs font-semibold uppercase tracking-wider text-slate-300 hover:border-emerald-500">Gagné</button>
@@ -126,12 +127,13 @@
                         <button onclick="setHoleResult('perdu')" id="res-perdu" class="res-btn bg-slate-900 border border-slate-700 py-2.5 rounded-lg text-xs font-semibold uppercase tracking-wider text-slate-300 hover:border-emerald-500">Perdu</button>
                     </div>
                 </div>
+
                 <!-- Score Brut -->
                 <div>
                     <label class="block text-xs text-slate-400 mb-2">Coups joués (Brut)</label>
                     <div class="flex items-center justify-between bg-slate-900 border border-slate-700 rounded-xl p-2">
                         <button onclick="adjustScore(-1)" class="w-12 h-12 bg-slate-800 hover:bg-slate-700 rounded-lg text-xl font-bold flex items-center justify-center text-slate-200">-</button>
-                        <span id="gross-score" class="text-3xl font-black text-white">4</span>
+                        <span id="gross-score" class="text-3xl font-black text-white">0</span>
                         <button onclick="adjustScore(1)" class="w-12 h-12 bg-slate-800 hover:bg-slate-700 rounded-lg text-xl font-bold flex items-center justify-center text-slate-200">+</button>
                     </div>
                 </div>
@@ -140,10 +142,10 @@
                 <div>
                     <label class="block text-xs text-slate-400 mb-2">Nombre de Putts</label>
                     <div class="grid grid-cols-4 gap-2" id="putts-selector">
-                        <button onclick="setPutts(1)" class="putt-btn bg-slate-900 border border-slate-700 py-2 rounded-lg text-sm font-semibold hover:border-emerald-500">1</button>
-                        <button onclick="setPutts(2)" class="putt-btn bg-emerald-600 border border-emerald-500 py-2 rounded-lg text-sm font-semibold text-white">2</button>
-                        <button onclick="setPutts(3)" class="putt-btn bg-slate-900 border border-slate-700 py-2 rounded-lg text-sm font-semibold hover:border-emerald-500">3</button>
-                        <button onclick="setPutts(4)" class="putt-btn bg-slate-900 border border-slate-700 py-2 rounded-lg text-sm font-semibold hover:border-emerald-500">4+</button>
+                        <button onclick="setPutts(1)" class="putt-btn bg-slate-900 border border-slate-700 py-2 rounded-lg text-sm font-semibold hover:border-emerald-500 text-slate-300">1</button>
+                        <button onclick="setPutts(2)" class="putt-btn bg-slate-900 border border-slate-700 py-2 rounded-lg text-sm font-semibold hover:border-emerald-500 text-slate-300">2</button>
+                        <button onclick="setPutts(3)" class="putt-btn bg-slate-900 border border-slate-700 py-2 rounded-lg text-sm font-semibold hover:border-emerald-500 text-slate-300">3</button>
+                        <button onclick="setPutts(4)" class="putt-btn bg-slate-900 border border-slate-700 py-2 rounded-lg text-sm font-semibold hover:border-emerald-500 text-slate-300">4+</button>
                     </div>
                 </div>
 
@@ -151,15 +153,17 @@
                 <div id="fairway-container">
                     <label class="block text-xs text-slate-400 mb-2">Fairway touché ?</label>
                     <div class="grid grid-cols-2 gap-2">
-                        <button onclick="setFairway('oui')" id="fw-oui" class="fw-btn bg-slate-900 border border-slate-700 py-2.5 rounded-lg text-xs font-semibold uppercase tracking-wider">Oui</button>
-                        <button onclick="setFairway('non')" id="fw-non" class="fw-btn bg-slate-900 border border-slate-700 py-2.5 rounded-lg text-xs font-semibold uppercase tracking-wider">Non</button>
+                        <button onclick="setFairway('oui')" id="fw-oui" class="fw-btn bg-slate-900 border border-slate-700 py-2.5 rounded-lg text-xs font-semibold uppercase tracking-wider text-slate-300">Oui</button>
+                        <button onclick="setFairway('non')" id="fw-non" class="fw-btn bg-slate-900 border border-slate-700 py-2.5 rounded-lg text-xs font-semibold uppercase tracking-wider text-slate-300">Non</button>
                     </div>
                 </div>
 
-<div class="bg-slate-800 border border-emerald-600/50 p-3 rounded-xl text-center shadow">
-                <span class="text-xs text-slate-400 uppercase tracking-wider block">Statut du Match</span>
-                <span id="match-status-display" class="text-lg font-extrabold text-emerald-400">All Square</span>
-            </div>
+                <!-- Statut du Match -->
+                <div class="bg-slate-800 border border-emerald-600/50 p-3 rounded-xl text-center shadow">
+                    <span class="text-xs text-slate-400 uppercase tracking-wider block">Statut du Match</span>
+                    <span id="match-status-display" class="text-lg font-extrabold text-white">All Square (0)</span>
+                </div>
+
                 <!-- Bouton Enregistrer & Sync -->
                 <button onclick="saveCurrentHole()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-3 rounded-xl transition shadow-lg text-sm">
                     Valider le trou et envoyer ☁️
@@ -167,21 +171,18 @@
             </div>
 
             <!-- Récapitulatif rapide -->
-            <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 flex justify-between text-xs text-slate-300">
-                <span>Trous joués : <strong id="holes-completed" class="text-emerald-400">0</strong> / 18</span>
-                <span>Total Brut : <strong id="total-gross" class="text-white">0</strong></span>  
-                <button onclick="finDePartie()" class="bg-rose-600 hover:bg-rose-500 text-white font-bold py-2 px-4 rounded-lg shadow transition w-full max-w-xs mx-auto">
-            🏁 Fin de partie & Bilan
-        </button>
+            <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 space-y-3 text-xs text-slate-300">
+                <div class="flex justify-between items-center">
+                    <span>Trous joués : <strong id="holes-completed" class="text-emerald-400">0</strong></span>
+                    <span>Total Brut : <strong id="total-gross" class="text-white">0</strong></span>
+                </div>
+                <button onclick="finDePartie()" class="bg-rose-600 hover:bg-rose-500 text-white font-bold py-2.5 px-4 rounded-lg shadow transition w-full">
+                    🏁 Fin de partie & Bilan
+                </button>
             </div>
         </div>
-<footer class="bg-slate-950 p-3 text-center text-xs text-slate-500 border-t border-slate-800 space-y-2">
-        <div>Statut Synchro : <span id="sync-status" class="text-amber-400 font-medium">Non configuré</span></div>
-    </footer>
-    </main>
 
-   
-<!-- Étape 3 : Écran de Bilan de Fin de Partie -->
+        <!-- Étape 3 : Écran de Bilan de Fin de Partie -->
         <div id="step-summary" class="hidden bg-slate-800 p-6 rounded-xl shadow border border-slate-700 space-y-4 text-center">
             <h2 class="text-xl font-bold text-emerald-400">📊 Bilan du Match</h2>
             <div id="match-result-banner" class="text-2xl font-black py-2 rounded-lg bg-slate-900">-</div>
@@ -201,23 +202,32 @@
                 🔄 Recommencer une partie
             </button>
         </div>
+
+    </main>
+
+    <!-- Pied de page -->
+    <footer class="bg-slate-950 p-3 text-center text-xs text-slate-500 border-t border-slate-800">
+        <div>Statut Synchro : <span id="sync-status" class="text-amber-400 font-medium">Non configuré</span></div>
+    </footer>
+
     <!-- Script Logique -->
     <script>
         // ==========================================
-        // ⚙️ TES ACCÈS SUPABASE (À RENSEIGNER ICI)
+        // ⚙️ TES ACCÈS SUPABASE
         // ==========================================
         const CONFIG_SUPABASE_URL = 'https://gtjyobxafohwtgugkeib.supabase.co'; 
         const CONFIG_SUPABASE_KEY = 'sb_publishable_slOa7zwBkJbhgnGvEIeJdw_se57JYRX';
         // ==========================================
 
-        // Par officiel du Golf de Rouen Mont-Saint-Aignan (1 à 18)
+        // Par officiel du Golf de Rouen Mont-Saint-Aignan (1 à 18)[cite: 21]
         const MSA_PARS = [4, 4, 4, 3, 4, 4, 3, 4, 4, 3, 5, 4, 4, 5, 3, 5, 3, 4];
 
-        let currentHoleIndex = 0; // 0 à 17
+        let currentHoleIndex = 0;
         let roundData = {
+            matchId: "",
             playerName: "",
             date: "",
-            scores: Array(18).fill(null).map(() => ({ brut: 4, putts: 2, fairway: "oui" }))
+            scores: Array(18).fill(null).map(() => ({ brut: null, putts: null, fairway: null, resultat: null }))
         };
 
         let supabaseClient = null;
@@ -246,7 +256,6 @@
         }
 
         function loadConfigFromStorage() {
-            // Utilise les constantes en haut par défaut, ou ce qui est sauvegardé en local
             const url = localStorage.getItem('MSA_SUPABASE_URL') || (CONFIG_SUPABASE_URL.includes('TON_PROJECT_ID') ? '' : CONFIG_SUPABASE_URL);
             const key = localStorage.getItem('MSA_SUPABASE_KEY') || (CONFIG_SUPABASE_KEY.includes('TA_CLE_ANON') ? '' : CONFIG_SUPABASE_KEY);
             
@@ -268,7 +277,7 @@
             }
         }
 
-       function startRound() {
+        function startRound() {
             const matchIdInput = document.getElementById('match-id').value;
             const nameSelect = document.getElementById('player-name').value;
             const startHoleSelect = parseInt(document.getElementById('start-hole').value);
@@ -289,48 +298,51 @@
             
             currentHoleIndex = startHoleSelect - 1;
 
-            // On laisse les scores à null (rien n'est pré-rempli)
             for(let i=0; i<18; i++) {
-                roundData.scores[i] = { brut: null, putts: null, fairway: null };
+                roundData.scores[i] = { brut: null, putts: null, fairway: null, resultat: null };
             }
 
             document.getElementById('step-player').classList.add('hidden');
             document.getElementById('step-game').classList.remove('hidden');
             loadHoleUI();
         }
-       function loadHoleUI() {
+
+        function loadHoleUI() {
             const holeNum = currentHoleIndex + 1;
-            const par = MSA_PARS[currentHoleIndex];
+            const par = MSA_PARS[currentHoleIndex % 18]; // Boucle sur les 18 trous si on dépasse 18
             
             document.getElementById('current-hole-num').textContent = holeNum;
             document.getElementById('hole-par-display').textContent = `Par ${par}`;
             
             const currentHoleObj = roundData.scores[currentHoleIndex];
-            if(currentHoleObj.resultat) {
-                highlightResult(currentHoleObj.resultat);
-            } else {
-                ['gagne', 'partage', 'perdu'].forEach(r => {
-                    const btn = document.getElementById(`res-${r}`);
-                    if(btn) btn.className = "res-btn bg-slate-900 border border-slate-700 py-2.5 rounded-lg text-xs font-semibold uppercase tracking-wider text-slate-300";
-                });
-            }
-            updateMatchStatus();
-            // Si le score n'a pas encore été saisi sur ce trou, on affiche une valeur de base (ex: le par, mais sans l'enregistrer comme validé) ou un tiret. Mettons le Par par défaut pour le confort d'affichage, mais non validé :
+            
             let displayScore = currentHoleObj.brut !== null ? currentHoleObj.brut : 0;
             document.getElementById('gross-score').textContent = displayScore;
             
             updateScoreComment(displayScore, par);
-            
-            // Réinitialisation visuelle des sélecteurs si non saisis
             clearVisualSelections();
+
             const fairwayContainer = document.getElementById('fairway-container');
             if (par === 3) {
-                fairwayContainer.style.display = 'none'; // Cache le menu fairway sur les Par 3
-                currentHoleObj.fairway = 'na'; // Valeur par défaut pour les Par 3
+                fairwayContainer.style.display = 'none';
+                currentHoleObj.fairway = 'na';
             } else {
-                fairwayContainer.style.display = 'block'; // Affiche le menu sur les Par 4 et Par 5
+                fairwayContainer.style.display = 'block';
+                if(currentHoleObj.fairway && currentHoleObj.fairway !== 'na') {
+                    highlightFairway(currentHoleObj.fairway);
+                }
             }
-           updateSummary();
+
+            if(currentHoleObj.putts !== null) {
+                highlightPutts(currentHoleObj.putts);
+            }
+
+            if(currentHoleObj.resultat) {
+                highlightResult(currentHoleObj.resultat);
+            }
+
+            updateMatchStatus();
+            updateSummary();
         }
 
         function clearVisualSelections() {
@@ -339,26 +351,38 @@
             });
             document.getElementById('fw-oui').className = "fw-btn bg-slate-900 border border-slate-700 py-2.5 rounded-lg text-xs font-semibold uppercase tracking-wider text-slate-300";
             document.getElementById('fw-non').className = "fw-btn bg-slate-900 border border-slate-700 py-2.5 rounded-lg text-xs font-semibold uppercase tracking-wider text-slate-300";
+            ['gagne', 'partage', 'perdu'].forEach(r => {
+                const btn = document.getElementById(`res-${r}`);
+                if(btn) btn.className = "res-btn bg-slate-900 border border-slate-700 py-2.5 rounded-lg text-xs font-semibold uppercase tracking-wider text-slate-300 hover:border-emerald-500";
+            });
         }
+
         function adjustScore(delta) {
-            let current = roundData.scores[currentHoleIndex].brut;
+            const par = MSA_PARS[currentHoleIndex % 18];
+            let current = roundData.scores[currentHoleIndex].brut !== null ? roundData.scores[currentHoleIndex].brut : 0;
             current += delta;
-            if(current < 1) current = 1;
+            if(current < 0) current = 0;
             roundData.scores[currentHoleIndex].brut = current;
             document.getElementById('gross-score').textContent = current;
-            updateScoreComment(current, MSA_PARS[currentHoleIndex]);
+            updateScoreComment(current, par);
+            updateSummary();
         }
 
         function updateScoreComment(score, par) {
-            const diff = score - par;
             const el = document.getElementById('score-comment');
-            if(diff === -3) { el.textContent = "Albatros 🦅🦅"; el.className = "text-xs font-bold px-2.5 py-1 rounded-full bg-purple-900 text-purple-200"; }
+            if(score === 0) {
+                el.textContent = "-";
+                el.className = "text-xs font-bold px-2.5 py-1 rounded-full bg-slate-700 text-slate-300";
+                return;
+            }
+            const diff = score - par;
+            if(diff <= -3) { el.textContent = "Albatros 🦅🦅"; el.className = "text-xs font-bold px-2.5 py-1 rounded-full bg-purple-900 text-purple-200"; }
             else if(diff === -2) { el.textContent = "Eagle 🦅"; el.className = "text-xs font-bold px-2.5 py-1 rounded-full bg-indigo-900 text-indigo-200"; }
             else if(diff === -1) { el.textContent = "Birdie 🐦"; el.className = "text-xs font-bold px-2.5 py-1 rounded-full bg-blue-900 text-blue-200"; }
             else if(diff === 0) { el.textContent = "Par 🟢"; el.className = "text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-900 text-emerald-200"; }
             else if(diff === 1) { el.textContent = "Bogey 🟨"; el.className = "text-xs font-bold px-2.5 py-1 rounded-full bg-amber-900 text-amber-200"; }
             else if(diff === 2) { el.textContent = "Double Bogey 🟥"; el.className = "text-xs font-bold px-2.5 py-1 rounded-full bg-rose-900 text-rose-200"; }
-            else { el.textContent = `${diff > 0 ? '+' + diff : diff}`; el.className = "text-xs font-bold px-2.5 py-1 rounded-full bg-red-950 text-red-200"; }
+            else { el.textContent = `+${diff}`; el.className = "text-xs font-bold px-2.5 py-1 rounded-full bg-red-950 text-red-200"; }
         }
 
         function setPutts(val) {
@@ -377,17 +401,6 @@
             });
         }
 
-        function handleFairwayDisplay(par, val) {
-            const fwContainer = document.getElementById('fairway-container');
-            if(par === 3) {
-                fwContainer.style.display = 'none';
-                roundData.scores[currentHoleIndex].fairway = 'na';
-            } else {
-                fwContainer.style.display = 'block';
-                highlightFairway(val);
-            }
-        }
-
         function setFairway(val) {
             roundData.scores[currentHoleIndex].fairway = val;
             highlightFairway(val);
@@ -399,20 +412,18 @@
             if(val === 'oui') {
                 btnOui.className = "fw-btn bg-emerald-600 border border-emerald-500 py-2.5 rounded-lg text-xs font-semibold uppercase tracking-wider text-white";
                 btnNon.className = "fw-btn bg-slate-900 border border-slate-700 py-2.5 rounded-lg text-xs font-semibold uppercase tracking-wider text-slate-300";
-            } else {
+            } else if(val === 'non') {
                 btnNon.className = "fw-btn bg-rose-600 border border-rose-500 py-2.5 rounded-lg text-xs font-semibold uppercase tracking-wider text-white";
                 btnOui.className = "fw-btn bg-slate-900 border border-slate-700 py-2.5 rounded-lg text-xs font-semibold uppercase tracking-wider text-slate-300";
             }
         }
 
-       function nextHole() {
-    currentHoleIndex++;
-    // Si on dépasse 18, on agrandit le tableau dynamiquement pour continuer la saisie
-    if(currentHoleIndex >= roundData.scores.length) {
-        roundData.scores.push({ brut: null, putts: null, fairway: null, resultat: null });
-    }
-    loadHoleUI();
-} 
+        function nextHole() {
+            currentHoleIndex++;
+            if(currentHoleIndex >= roundData.scores.length) {
+                roundData.scores.push({ brut: null, putts: null, fairway: null, resultat: null });
+            }
+            loadHoleUI();
         }
 
         function prevHole() {
@@ -422,24 +433,22 @@
             }
         }
 
-      function updateSummary() {
+        function updateSummary() {
             let totalGross = 0;
-            let holesPlayed = 1;
+            let holesPlayed = 0;
             
             roundData.scores.forEach(s => {
-                if(s.brut !== null && s.brut !== undefined) {
+                if(s.brut !== null && s.brut > 0) {
                     totalGross += s.brut;
                     holesPlayed++;
                 }
             });
 
-            // Le nombre de trous joués augmente de 1 en 1 à chaque validation
             document.getElementById('holes-completed').textContent = holesPlayed;
-            // Le score brut cumule uniquement les coups des trous saisis
             document.getElementById('total-gross').textContent = totalGross;
         }
+
         function setHoleResult(val) {
-            // On enregistre le résultat pour le trou en cours
             roundData.scores[currentHoleIndex].resultat = val;
             highlightResult(val);
             updateMatchStatus();
@@ -452,14 +461,14 @@
                     if(r === val) {
                         btn.className = "res-btn bg-emerald-600 border border-emerald-500 py-2.5 rounded-lg text-xs font-semibold uppercase tracking-wider text-white";
                     } else {
-                        btn.className = "res-btn bg-slate-900 border border-slate-700 py-2.5 rounded-lg text-xs font-semibold uppercase tracking-wider text-slate-300";
+                        btn.className = "res-btn bg-slate-900 border border-slate-700 py-2.5 rounded-lg text-xs font-semibold uppercase tracking-wider text-slate-300 hover:border-emerald-500";
                     }
                 }
             });
         }
 
         function updateMatchStatus() {
-            let standing = 0; // 0 = All Square, positif = Up, négatif = Down
+            let standing = 0;
             roundData.scores.forEach(s => {
                 if(s.resultat === 'gagne') standing++;
                 if(s.resultat === 'perdu') standing--;
@@ -477,71 +486,77 @@
                     el.textContent = `${Math.abs(standing)} Down`;
                     el.className = "text-lg font-extrabold text-rose-400";
                 }
-            }function finDePartie() {
-    let gagnes = 0;
-    let partages = 0;
-    let perdus = 0;
-    let totalPutts = 0;
-    let totalFairwaysValid = 0;
-    let fairwaysCountable = 0;
-
-    roundData.scores.forEach((s, idx) => {
-        if(s.resultat === 'gagne') gagnes++;
-        if(s.resultat === 'partage') partages++;
-        if(s.resultat === 'perdu') perdus++;
-
-        if(s.putts !== null) totalPutts += s.putts;
-
-        // Calcul des fairways (hors Par 3 ou 'na')
-        const par = MSA_PARS[idx] || 4;
-        if(par !== 3 && s.fairway && s.fairway !== 'na') {
-            fairwaysCountable++;
-            if(s.fairway === 'oui') totalFairwaysValid++;
+            }
         }
-    });
 
-    const totalSaisies = roundData.scores.filter(s => s.brut !== null).length;
-    const avgPutts = totalSaisies > 0 ? (totalPutts / totalSaisies).toFixed(1) : 0;
-    const fwPercent = fairwaysCountable > 0 ? Math.round((totalFairwaysValid / fairwaysCountable) * 100) : 0;
+        function finDePartie() {
+            let gagnes = 0;
+            let partages = 0;
+            let perdus = 0;
+            let totalPutts = 0;
+            let totalPuttsCount = 0;
+            let totalFairwaysValid = 0;
+            let fairwaysCountable = 0;
 
-    // Détermination du résultat global (Gagné / Perdu / Égalité)
-    const banner = document.getElementById('match-result-banner');
-    if(gagnes > perdus) {
-        banner.textContent = "🏆 MATCH GAGNÉ !";
-        banner.className = "text-2xl font-black py-3 rounded-lg bg-emerald-950 text-emerald-300 border border-emerald-600";
-    } else if(gagnes < perdus) {
-        banner.textContent = "❌ MATCH PERDU";
-        banner.className = "text-2xl font-black py-3 rounded-lg bg-rose-950 text-rose-300 border border-rose-600";
-    } else {
-        banner.textContent = "🤝 MATCH NUL (All Square)";
-        banner.className = "text-2xl font-black py-3 rounded-lg bg-slate-900 text-slate-200 border border-slate-700";
-    }
+            roundData.scores.forEach((s, idx) => {
+                if(s.resultat === 'gagne') gagnes++;
+                if(s.resultat === 'partage') partages++;
+                if(s.resultat === 'perdu') perdus++;
 
-    // Injection des stats dans le HTML
-    document.getElementById('stat-gagnes').textContent = gagnes;
-    document.getElementById('stat-partages').textContent = partages;
-    document.getElementById('stat-perdus').textContent = perdus;
-    document.getElementById('stat-fairways').textContent = fwPercent + "%";
-    document.getElementById('stat-putts').textContent = avgPutts;
+                if(s.putts !== null) {
+                    totalPutts += s.putts;
+                    totalPuttsCount++;
+                }
 
-    // Bascule d'affichage des écrans
-    document.getElementById('step-game').classList.add('hidden');
-    document.getElementById('step-summary').classList.remove('hidden');
-}
+                const par = MSA_PARS[idx % 18];
+                if(par !== 3 && s.fairway && s.fairway !== 'na') {
+                    fairwaysCountable++;
+                    if(s.fairway === 'oui') totalFairwaysValid++;
+                }
+            });
+
+            const avgPutts = totalPuttsCount > 0 ? (totalPutts / totalPuttsCount).toFixed(1) : 0;
+            const fwPercent = fairwaysCountable > 0 ? Math.round((totalFairwaysValid / fairwaysCountable) * 100) : 0;
+
+            const banner = document.getElementById('match-result-banner');
+            if(gagnes > perdus) {
+                banner.textContent = "🏆 MATCH GAGNÉ !";
+                banner.className = "text-2xl font-black py-3 rounded-lg bg-emerald-950 text-emerald-300 border border-emerald-600";
+            } else if(gagnes < perdus) {
+                banner.textContent = "❌ MATCH PERDU";
+                banner.className = "text-2xl font-black py-3 rounded-lg bg-rose-950 text-rose-300 border border-rose-600";
+            } else {
+                banner.textContent = "🤝 MATCH NUL (All Square)";
+                banner.className = "text-2xl font-black py-3 rounded-lg bg-slate-900 text-slate-200 border border-slate-700";
+            }
+
+            document.getElementById('stat-gagnes').textContent = gagnes;
+            document.getElementById('stat-partages').textContent = partages;
+            document.getElementById('stat-perdus').textContent = perdus;
+            document.getElementById('stat-fairways').textContent = fwPercent + "%";
+            document.getElementById('stat-putts').textContent = avgPutts;
+
+            document.getElementById('step-game').classList.add('hidden');
+            document.getElementById('step-summary').classList.remove('hidden');
         }
+
         async function saveCurrentHole() {
             const holeNum = currentHoleIndex + 1;
             const dataHole = roundData.scores[currentHoleIndex];
 
-            // 1. Sauvegarde locale de sécurité
+            if(!dataHole.brut || dataHole.brut <= 0) {
+                alert("Veuillez saisir un score brut supérieur à 0 avant de valider.");
+                return;
+            }
+
             localStorage.setItem('MSA_LAST_ROUND', JSON.stringify(roundData));
 
-            // 2. Envoi Supabase si configuré
-          if(supabaseClient) {
+            if(supabaseClient) {
                 const { error } = await supabaseClient
                     .from('scores_golf')
                     .upsert([
                         { 
+                            match_id: roundData.matchId,
                             nom_joueur: roundData.playerName, 
                             date_partie: roundData.date, 
                             numero_trou: holeNum, 
@@ -561,9 +576,8 @@
                 alert(`Trou n°${holeNum} enregistré en local (Supabase non configuré).`);
             }
 
-            if(currentHoleIndex < 17) {
-                nextHole();
-            }
+            updateSummary();
+            nextHole();
         }
     </script>
 </body>
