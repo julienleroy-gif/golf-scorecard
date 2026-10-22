@@ -193,8 +193,10 @@
                 <div>Trous Perdus<br><strong id="stat-perdus" class="text-rose-400 text-base">0</strong></div>
             </div>
 
-            <div class="space-y-2 text-sm text-left">
-                <div class="flex justify-between"><span>Fairways touchés :</span> <strong id="stat-fairways" class="text-white">0%</strong></div>
+            <div class="space-y-2 text-sm text-left bg-slate-900 p-4 rounded-xl border border-slate-700">
+                <div class="flex justify-between"><span>Score Brut Total :</span> <strong id="stat-brut" class="text-white">0</strong></div>
+                <div class="flex justify-between"><span>Fairways touchés (FIR) :</span> <strong id="stat-fairways" class="text-emerald-400">0%</strong></div>
+                <div class="flex justify-between"><span>Greens en Régulation (GIR) :</span> <strong id="stat-gir" class="text-emerald-400">0%</strong></div>
                 <div class="flex justify-between"><span>Moyenne de putts / trou :</span> <strong id="stat-putts" class="text-white">0</strong></div>
             </div>
 
@@ -279,7 +281,7 @@
         function startRound() {
             const matchIdInput = document.getElementById('match-id').value;
             const nameSelect = document.getElementById('player-name').value;
-            const startHoleSelect = parseInt(document.getElementById('start-hole').value);
+            const startHoleSelect = parseInt(document.getElementById('start-hole').value) || 1;
             const dateInput = document.getElementById('match-date').value;
 
             if(!matchIdInput) {
@@ -492,22 +494,36 @@
             let gagnes = 0;
             let partages = 0;
             let perdus = 0;
+            let totalBrut = 0;
             let totalPutts = 0;
             let totalPuttsCount = 0;
             let totalFairwaysValid = 0;
             let fairwaysCountable = 0;
+            let girCount = 0;
+            let girCountable = 0;
 
             roundData.scores.forEach((s, idx) => {
                 if(s.resultat === 'gagne') gagnes++;
                 if(s.resultat === 'partage') partages++;
                 if(s.resultat === 'perdu') perdus++;
 
+                const par = MSA_PARS[idx % 18];
+
+                if(s.brut !== null && s.brut > 0) {
+                    totalBrut += s.brut;
+                    if(s.putts !== null) {
+                        girCountable++;
+                        if((s.brut - s.putts) <= (par - 2)) {
+                            girCount++;
+                        }
+                    }
+                }
+
                 if(s.putts !== null) {
                     totalPutts += s.putts;
                     totalPuttsCount++;
                 }
 
-                const par = MSA_PARS[idx % 18];
                 if(par !== 3 && s.fairway && s.fairway !== 'na') {
                     fairwaysCountable++;
                     if(s.fairway === 'oui') totalFairwaysValid++;
@@ -516,6 +532,7 @@
 
             const avgPutts = totalPuttsCount > 0 ? (totalPutts / totalPuttsCount).toFixed(1) : 0;
             const fwPercent = fairwaysCountable > 0 ? Math.round((totalFairwaysValid / fairwaysCountable) * 100) : 0;
+            const girPercent = girCountable > 0 ? Math.round((girCount / girCountable) * 100) : 0;
 
             const banner = document.getElementById('match-result-banner');
             if(gagnes > perdus) {
@@ -532,7 +549,9 @@
             document.getElementById('stat-gagnes').textContent = gagnes;
             document.getElementById('stat-partages').textContent = partages;
             document.getElementById('stat-perdus').textContent = perdus;
+            document.getElementById('stat-brut').textContent = totalBrut;
             document.getElementById('stat-fairways').textContent = fwPercent + "%";
+            document.getElementById('stat-gir',).textContent = `${girCount} / ${girCountable} (${girPercent}%)`;
             document.getElementById('stat-putts').textContent = avgPutts;
 
             document.getElementById('step-game').classList.add('hidden');
