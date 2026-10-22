@@ -285,7 +285,15 @@
             document.getElementById('hole-par-display').textContent = `Par ${par}`;
             
             const currentHoleObj = roundData.scores[currentHoleIndex];
-            
+            if(currentHoleObj.resultat) {
+                highlightResult(currentHoleObj.resultat);
+            } else {
+                ['gagne', 'partage', 'perdu'].forEach(r => {
+                    const btn = document.getElementById(`res-${r}`);
+                    if(btn) btn.className = "res-btn bg-slate-900 border border-slate-700 py-2.5 rounded-lg text-xs font-semibold uppercase tracking-wider text-slate-300";
+                });
+            }
+            updateMatchStatus();
             // Si le score n'a pas encore été saisi sur ce trou, on affiche une valeur de base (ex: le par, mais sans l'enregistrer comme validé) ou un tiret. Mettons le Par par défaut pour le confort d'affichage, mais non validé :
             let displayScore = currentHoleObj.brut !== null ? currentHoleObj.brut : 0;
             document.getElementById('gross-score').textContent = displayScore;
@@ -405,6 +413,47 @@
             document.getElementById('holes-completed').textContent = holesPlayed;
             // Le score brut cumule uniquement les coups des trous saisis
             document.getElementById('total-gross').textContent = totalGross;
+        }
+        function setHoleResult(val) {
+            // On enregistre le résultat pour le trou en cours
+            roundData.scores[currentHoleIndex].resultat = val;
+            highlightResult(val);
+            updateMatchStatus();
+        }
+
+        function highlightResult(val) {
+            ['gagne', 'partage', 'perdu'].forEach(r => {
+                const btn = document.getElementById(`res-${r}`);
+                if(btn) {
+                    if(r === val) {
+                        btn.className = "res-btn bg-emerald-600 border border-emerald-500 py-2.5 rounded-lg text-xs font-semibold uppercase tracking-wider text-white";
+                    } else {
+                        btn.className = "res-btn bg-slate-900 border border-slate-700 py-2.5 rounded-lg text-xs font-semibold uppercase tracking-wider text-slate-300";
+                    }
+                }
+            });
+        }
+
+        function updateMatchStatus() {
+            let standing = 0; // 0 = All Square, positif = Up, négatif = Down
+            roundData.scores.forEach(s => {
+                if(s.resultat === 'gagne') standing++;
+                if(s.resultat === 'perdu') standing--;
+            });
+
+            const el = document.getElementById('match-status-display');
+            if(el) {
+                if(standing === 0) {
+                    el.textContent = "All Square (0)";
+                    el.className = "text-lg font-extrabold text-white";
+                } else if(standing > 0) {
+                    el.textContent = `${standing} Up`;
+                    el.className = "text-lg font-extrabold text-emerald-400";
+                } else {
+                    el.textContent = `${Math.abs(standing)} Down`;
+                    el.className = "text-lg font-extrabold text-rose-400";
+                }
+            }
         }
         async function saveCurrentHole() {
             const holeNum = currentHoleIndex + 1;
