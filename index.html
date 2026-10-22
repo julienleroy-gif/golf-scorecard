@@ -42,7 +42,7 @@
     <!-- Corps de l'application -->
     <main class="flex-1 p-4 max-w-md mx-auto w-full space-y-4">
         
-        <!-- Étape 1 : Sélection du joueur -->
+        <!-- Étape 1 : Sélection du joueur et paramètres -->
         <div id="step-player" class="bg-slate-800 p-5 rounded-xl shadow border border-slate-700 space-y-4">
             <h2 class="text-base font-semibold text-emerald-400">Coupe de Normandie 2027</h2>
             
@@ -118,7 +118,7 @@
                     </div>
                 </div>
 
-                <!-- Résultat du Trou -->
+                <!-- Résultat du Trou (Matchplay) -->
                 <div>
                     <label class="block text-xs text-slate-400 mb-2">Résultat du Trou</label>
                     <div class="grid grid-cols-3 gap-2" id="match-result-selector">
@@ -170,7 +170,7 @@
                 </button>
             </div>
 
-            <!-- Récapitulatif rapide -->
+            <!-- Récapitulatif rapide & Fin de partie -->
             <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 space-y-3 text-xs text-slate-300">
                 <div class="flex justify-between items-center">
                     <span>Trous joués : <strong id="holes-completed" class="text-emerald-400">0</strong></span>
@@ -561,7 +561,8 @@
                             numero_trou: holeNum, 
                             score_brut: dataHole.brut,
                             nombre_putts: dataHole.putts,
-                            fairway_touche: dataHole.fairway
+                            fairway_touche: dataHole.fairway,
+                            resultat_trou: dataHole.resultat
                         }
                     ]);
 
