@@ -176,11 +176,12 @@
                 </div>
 
                 <!-- Fairway -->
-                <div id="fairway-container">
-                    <label class="block text-xs text-slate-400 mb-2">Fairway touché ?</label>
-                    <div class="grid grid-cols-2 gap-2">
-                        <button onclick="setFairway('oui')" id="fw-oui" class="fw-btn bg-slate-900 border border-slate-700 py-2.5 rounded-lg text-xs font-semibold uppercase tracking-wider text-slate-300">Oui</button>
-                        <button onclick="setFairway('non')" id="fw-non" class="fw-btn bg-slate-900 border border-slate-700 py-2.5 rounded-lg text-xs font-semibold uppercase tracking-wider text-slate-300">Non</button>
+               <div id="fairway-container">
+                    <label class="block text-xs text-slate-400 mb-2">Mise en jeu (Fairway) ?</label>
+                    <div class="grid grid-cols-3 gap-1.5">
+                        <button onclick="setFairway('gauche')" id="fw-gauche" class="fw-btn bg-slate-900 border border-slate-700 py-2.5 rounded-lg text-xs font-semibold uppercase tracking-wider text-slate-300">⬅️ Gauche</button>
+                        <button onclick="setFairway('oui')" id="fw-oui" class="fw-btn bg-slate-900 border border-slate-700 py-2.5 rounded-lg text-xs font-semibold uppercase tracking-wider text-slate-300">🎯 Piste</button>
+                        <button onclick="setFairway('non')" id="fw-non" class="fw-btn bg-slate-900 border border-slate-700 py-2.5 rounded-lg text-xs font-semibold uppercase tracking-wider text-slate-300">Droite ➡️</button>
                     </div>
                 </div>
 
